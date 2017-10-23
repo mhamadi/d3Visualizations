@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head
+    <meta charset="utf-8">
+    <title> Dynamic Barchart</title>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    <style type="text/css">
+
+      body{
+        background: #e1eaea;
+      }
+
+      #outer{
+        width: 80%;
+        margin-left: 10%;
+        margin-right: 10%;
+      }
+
+      #button {
+        background-color: green;
+        color: white;
+        text-align: center;
+        display: inline-block;
+        padding: 9px 15px;
+        border-radius: 5px;
+      }
+      rect {
+        -moz-transition: all 0.25s;
+        -o-transition: all 0.25s;
+        -webkit-transition: all 0.25s;
+        transition: all 0.25s;
+      }
+      rect:hover {
+        fill: purple;
+      }
+
+      #button{
+        margin-left: 15px;
+      }
+
+    </style>
+  </head>
+  <body>
+  <div id="outer">
+    <h1> This is a Dynamic Barchart </h1>
+    <div id="placeHere">
+    </div>
+    <br>
+    <p> Click this button to Sort
+       <button id="button" onclick="sortBars()">Sort </button>
+   </p>
+
+    <script type="text/javascript">
+      //width and height
+      var w = 500;
+      var h = 200;
+      var barPadding = 1;
+
+      var dataset = [ 5, 10, 13, 19, 21, 25, 22, 18, 15, 13,
+							11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ];
+
+      //create x scale
+      var xScale = d3.scaleBand()
+                    .domain(d3.range(dataset.length))
+                    .range([0, w])
+                    .round(true)
+                    .paddingInner(0.05);
+
+      //create y scale
+      var yScale = d3.scaleLinear()
+                     .domain([0, d3.max(dataset)])
+                     .range([0, h]);
+
+      //SVG element
+      var svg = d3.select("#placeHere")
+                  .append("svg")
+                  .attr("width", w)
+                  .attr("height", h);
+
+      //create the bars
+      svg.selectAll("rect")
+         .data(dataset)
+         .enter()
+         .append("rect")
+         .attr("x", function(d,i){
+           return xScale(i);
+         })
+         .attr("y", function(d){
+           return h - yScale(d);
+         })
+         .attr("width", xScale.bandwidth())
+         .attr("height", function(d){
+           return yScale(d);
+         })
+         .attr("fill", function(d){
+           return "rgb(0, " + Math.round(d * 10) + " , 0)";
+         });
+
+
+         //create the text
+         svg.selectAll("text")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .text( function(d){
+              return d;
+            })
+            .attr("text-anchor", "middle")
+            .attr("x", function(d,i){
+              return xScale(i) + xScale.bandwidth() / 2;
+            })
+            .attr("y", function(d){
+              return h - yScale(d) + 14;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "12px")
+            .attr("fill", "black");
+
+
+        //sort function
+        var sortBars = function() {
+           svg.selectAll("rect")
+              .sort(function(a,b) {
+                 return d3.ascending(a,b);
+              })
+             .transition()
+             .duration(1000)
+             .ease(d3.easeLinear)
+             .delay(500)
+             .attr("x", function(d,i) {
+                 return xScale(i);
+             });
+          svg.selectAll("text")
+             .sort(function(a,b) {
+                return d3.ascending(a,b);
+              })
+              .transition()
+              .duration(1700)
+              .ease(d3.easeLinear)
+              .delay(500)
+              .attr("x", function(d,i) {
+                  return xScale(i) + xScale.bandwidth() / 2;
+                });
+       };
+
+    </script>
+
+  </div>
+  </body>
+</html>
